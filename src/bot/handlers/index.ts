@@ -4,7 +4,7 @@ import { handlePaid } from './paid.js';
 import { handleStatus } from './status.js';
 import { extractMessageText, extractMentions } from '../utils/parser.js';
 import { isGroupMessage } from '../utils/validator.js';
-import { formatUsage } from '../utils/formatter.js';
+import { formatUsage, stripJidSuffix } from '../utils/formatter.js';
 import pino from 'pino';
 
 const logger = pino({ name: 'message-handler' });
@@ -25,7 +25,8 @@ export async function handleMessage(sock: WASocket, msg: WAMessage): Promise<voi
   if (!text.startsWith('/')) return;
 
   const mentions = extractMentions(msg.message);
-  const senderPhone = msg.key.participant?.replace('@s.whatsapp.net', '') || '';
+  const senderJid = msg.key.participant || '';
+  const senderPhone = stripJidSuffix(senderJid);
 
   if (!senderPhone) {
     logger.warn({ messageId: msg.key.id }, 'Could not determine sender phone');
@@ -38,10 +39,10 @@ export async function handleMessage(sock: WASocket, msg: WAMessage): Promise<voi
 
   switch (command) {
     case '/payme':
-      await handlePayme(sock, jid, senderPhone, text, mentions);
+      await handlePayme(sock, jid, senderJid, senderPhone, text, mentions);
       break;
     case '/paid':
-      await handlePaid(sock, jid, senderPhone, text, mentions);
+      await handlePaid(sock, jid, senderJid, senderPhone, text, mentions);
       break;
     case '/status':
       await handleStatus(sock, jid, senderPhone);

@@ -1,6 +1,6 @@
 import type { WASocket } from 'baileys';
 import { parsePaidCommand } from '../utils/parser.js';
-import { formatDebtPaid, formatUsage } from '../utils/formatter.js';
+import { formatDebtPaid, formatUsage, stripJidSuffix } from '../utils/formatter.js';
 import { markDebtPaid } from '../../services/debt.service.js';
 import pino from 'pino';
 
@@ -9,11 +9,12 @@ const logger = pino({ name: 'paid-handler' });
 export async function handlePaid(
   sock: WASocket,
   groupJid: string,
+  senderJid: string,
   senderPhone: string,
   text: string,
   mentions: string[]
 ): Promise<void> {
-  // Parse the command
+  // Parse the command - get the stripped phone/ID
   const creditorPhone = parsePaidCommand(text, mentions);
 
   if (!creditorPhone) {
@@ -39,7 +40,8 @@ export async function handlePaid(
       logger.info({ groupJid, debtorPhone: senderPhone, creditorPhone }, 'Debt marked as paid');
 
       const response = formatDebtPaid(senderPhone, creditorPhone);
-      const allMentions = [senderPhone, creditorPhone].map((p) => `${p}@s.whatsapp.net`);
+      // Use original JIDs for mentions
+      const allMentions = [senderJid, ...mentions];
 
       await sock.sendMessage(groupJid, {
         text: response,
@@ -47,8 +49,8 @@ export async function handlePaid(
       });
     } else {
       await sock.sendMessage(groupJid, {
-        text: `No pending debt found from you to @${creditorPhone}`,
-        mentions: [`${creditorPhone}@s.whatsapp.net`],
+        text: `No pending debt found from you to @${stripJidSuffix(mentions[0] || creditorPhone)}`,
+        mentions: mentions,
       });
     }
   } catch (dbError) {

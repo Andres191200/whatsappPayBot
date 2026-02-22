@@ -147,9 +147,9 @@ export function formatReminder(debts: DebtWithRelations[], isWeeklySummary = fal
  */
 export function formatUsage(command: 'payme' | 'paid' | 'status' | 'all'): string {
   const commands: Record<string, string> = {
-    payme: '*/payme* @user1 @user2 <amount> [description]\nCreate a debt reminder.\nExample: /payme @john @jane 1500 for pizza',
-    paid: '*/paid* @creditor\nMark your debt as paid to someone.\nExample: /paid @mark',
-    status: '*/status*\nShow all pending debts in this group.',
+    payme: '*/payme* @persona1 @persona2 <amount> [Descripción]\nCrea recordatorios de pago.\Ejemplo: /payme @gonino 12000 del pool',
+    paid: '*/paid* @persona\nTe notificás como que pagaste.\nEjemplo: /paid @makio',
+    status: '*/status*\nMuestra todos los que faltan pagarle a alguien',
   };
 
   if (command === 'all') {

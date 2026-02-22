@@ -10,6 +10,7 @@ const logger = pino({ name: 'payme-handler' });
 export async function handlePayme(
   sock: WASocket,
   groupJid: string,
+  senderJid: string,
   senderPhone: string,
   text: string,
   mentions: string[]
@@ -52,10 +53,8 @@ export async function handlePayme(
       parsed.description
     );
 
-    // Include all relevant phone numbers as mentions
-    const allMentions = [senderPhone, ...parsed.debtors].map(
-      (p) => `${p}@s.whatsapp.net`
-    );
+    // Use original JIDs for mentions (senderJid + original mentions from message)
+    const allMentions = [senderJid, ...mentions];
 
     await sock.sendMessage(groupJid, {
       text: response,

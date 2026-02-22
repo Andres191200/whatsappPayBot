@@ -60,8 +60,8 @@ export async function startBot(): Promise<WASocket> {
     if (type !== 'notify') return;
 
     for (const msg of messages) {
-      // Skip messages from self and non-message events
-      if (msg.key.fromMe || !msg.message) continue;
+      // Skip non-message events
+      if (!msg.message) continue;
 
       try {
         await handleMessage(sock!, msg);

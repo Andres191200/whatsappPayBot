@@ -37,8 +37,8 @@ export function parsePaymeCommand(
   const afterAmount = withoutCommand.slice(amountIndex + amountMatch[1].length).trim();
   const description = afterAmount || undefined;
 
-  // Clean phone numbers from mentions (remove @s.whatsapp.net suffix)
-  const debtors = mentions.map((m) => m.replace('@s.whatsapp.net', ''));
+  // Clean JID suffixes from mentions (remove @s.whatsapp.net, @lid, etc.)
+  const debtors = mentions.map((m) => m.replace(/@(s\.whatsapp\.net|lid)$/i, ''));
 
   return { debtors, amount, description };
 }
@@ -51,7 +51,8 @@ export function parsePaidCommand(text: string, mentions: string[]): string | nul
   if (!text.match(/^\/paid\s+/i) || mentions.length !== 1) {
     return null;
   }
-  return mentions[0].replace('@s.whatsapp.net', '');
+  // Strip all JID suffixes (@s.whatsapp.net, @lid, etc.)
+  return mentions[0].replace(/@(s\.whatsapp\.net|lid)$/i, '');
 }
 
 /**
