@@ -126,7 +126,7 @@ export function formatReminder(debts: DebtWithRelations[], isWeeklySummary = fal
 
   for (const [debtorPhone, debtorDebts] of byDebtor) {
     const total = debtorDebts.reduce((sum, d) => sum + d.amount, 0);
-    message += `${formatMention(debtorPhone)} le debe ${formatAmount(total)} en total:\n`;
+    message += `${formatMention(debtorPhone)} debe ${formatAmount(total)} en total:\n`;
 
     for (const debt of debtorDebts) {
       message += `  - ${formatAmount(debt.amount)} to ${formatMention(debt.creditor)}`;
