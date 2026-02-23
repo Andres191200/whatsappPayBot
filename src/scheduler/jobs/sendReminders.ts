@@ -1,8 +1,9 @@
 import type { WASocket } from 'baileys';
 import { getAllPendingDebts, updateLastReminderAt } from '../../services/debt.service.js';
-import { formatReminder } from '../../bot/utils/formatter.js';
+import { formatReminder, formatMention } from '../../bot/utils/formatter.js';
 import { config } from '../../config/index.js';
 import type { DebtWithRelations } from '../../types/index.js';
+import { hasLinkedAccount, createPaymentLink } from '../../services/mercadopago.service.js';
 import pino from 'pino';
 
 const logger = pino({ name: 'send-reminders' });
@@ -43,7 +44,7 @@ export async function sendReminders(
 
     // Send reminders to each group
     for (const [groupJid, groupDebts] of debtsByGroup) {
-      const message = formatReminder(groupDebts, isWeeklySummary);
+      let message = formatReminder(groupDebts, isWeeklySummary);
 
       if (!message) continue;
 
@@ -54,6 +55,23 @@ export async function sendReminders(
         allJids.add(d.creditorPhone);
       }
       const mentions = Array.from(allJids);
+
+      // Generate payment links for creditors with linked MP accounts
+      const paymentLinks: string[] = [];
+      for (const debt of groupDebts) {
+        const creditorHasMP = await hasLinkedAccount(debt.creditorPhone);
+        if (creditorHasMP && !debt.mpPreferenceId) {
+          const description = debt.description || 'Pago de deuda';
+          const paymentUrl = await createPaymentLink(debt.creditorPhone, debt.id, debt.amount, description);
+          if (paymentUrl) {
+            paymentLinks.push(`${formatMention(debt.debtorPhone)} → ${formatMention(debt.creditorPhone)}: ${paymentUrl}`);
+          }
+        }
+      }
+
+      if (paymentLinks.length > 0) {
+        message += '\n\n💳 *Links de pago:*\n' + paymentLinks.join('\n');
+      }
 
       try {
         await sock.sendMessage(groupJid, {

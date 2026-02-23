@@ -145,11 +145,12 @@ export function formatReminder(debts: DebtWithRelations[], isWeeklySummary = fal
 /**
  * Format usage instructions
  */
-export function formatUsage(command: 'payme' | 'paid' | 'status' | 'all'): string {
+export function formatUsage(command: 'payme' | 'paid' | 'status' | 'login' | 'all'): string {
   const commands: Record<string, string> = {
-    payme: '*/payme* @persona1 @persona2 <amount> [Descripción]\nCrea recordatorios de pago.\Ejemplo: /payme @gonino 12000 del pool',
+    payme: '*/payme* @persona1 @persona2 <amount> [Descripción]\nCrea recordatorios de pago.\nEjemplo: /payme @gonino 12000 del pool',
     paid: '*/paid* @persona\nTe notificás como que pagaste.\nEjemplo: /paid @makio',
     status: '*/status*\nMuestra todos los que faltan pagarle a alguien',
+    login: '*/login*\nVinculá tu cuenta de Mercado Pago para generar links de pago',
   };
 
   if (command === 'all') {

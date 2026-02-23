@@ -1,8 +1,9 @@
 import type { WASocket } from 'baileys';
 import { parsePaymeCommand } from '../utils/parser.js';
 import { validatePaymeCommand } from '../utils/validator.js';
-import { formatDebtCreated, formatUsage } from '../utils/formatter.js';
+import { formatDebtCreated, formatUsage, formatMention } from '../utils/formatter.js';
 import { createDebts } from '../../services/debt.service.js';
+import { hasLinkedAccount, createPaymentLink } from '../../services/mercadopago.service.js';
 import pino from 'pino';
 
 const logger = pino({ name: 'payme-handler' });
@@ -46,12 +47,36 @@ export async function handlePayme(
     logger.info({ debtIds, groupJid, senderPhone }, 'Created debts');
 
     // Send confirmation with mentions
-    const response = formatDebtCreated(
+    let response = formatDebtCreated(
       senderPhone,
       parsed.debtors,
       parsed.amount,
       parsed.description
     );
+
+    // Check if creditor has linked Mercado Pago account
+    const creditorHasMP = await hasLinkedAccount(senderJid);
+
+    if (creditorHasMP) {
+      // Generate payment links for each debt
+      const paymentLinks: string[] = [];
+
+      for (let i = 0; i < debtIds.length; i++) {
+        const debtId = debtIds[i];
+        const debtorJid = mentions[i];
+        const description = parsed.description || 'Pago de deuda';
+
+        const paymentUrl = await createPaymentLink(senderJid, debtId, parsed.amount, description);
+
+        if (paymentUrl) {
+          paymentLinks.push(`${formatMention(debtorJid)}: ${paymentUrl}`);
+        }
+      }
+
+      if (paymentLinks.length > 0) {
+        response += '\n\n💳 *Links de pago:*\n' + paymentLinks.join('\n');
+      }
+    }
 
     // Use original JIDs for mentions (senderJid + original mentions from message)
     const allMentions = [senderJid, ...mentions];

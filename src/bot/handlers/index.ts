@@ -2,6 +2,7 @@ import type { WASocket, WAMessage } from 'baileys';
 import { handlePayme } from './payme.js';
 import { handlePaid } from './paid.js';
 import { handleStatus } from './status.js';
+import { handleLogin } from './login.js';
 import { extractMessageText, extractMentions } from '../utils/parser.js';
 import { isGroupMessage } from '../utils/validator.js';
 import { formatUsage, stripJidSuffix } from '../utils/formatter.js';
@@ -49,6 +50,9 @@ export async function handleMessage(sock: WASocket, msg: WAMessage): Promise<voi
       break;
     case '/help':
       await sock.sendMessage(jid, { text: formatUsage('all') });
+      break;
+    case '/login':
+      await handleLogin(sock, jid, senderJid);
       break;
     default:
       // Unknown command - ignore silently

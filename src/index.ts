@@ -1,5 +1,6 @@
 import { startBot } from './bot/client.js';
 import { startScheduler } from './scheduler/index.js';
+import { startServer } from './server/index.js';
 import pino from 'pino';
 
 const logger = pino({ name: 'main' });
@@ -8,6 +9,9 @@ async function main() {
   logger.info('Starting WhatsApp Pay bot...');
 
   try {
+    // Start the Express server for OAuth and webhooks
+    startServer();
+
     // Start the WhatsApp bot
     const sock = await startBot();
 

@@ -29,10 +29,32 @@ export const debts = sqliteTable('debts', {
   currency: text('currency').default('ARS'),
   description: text('description'),
   status: text('status', { enum: ['pending', 'paid', 'cancelled'] }).default('pending'),
+  mpPaymentId: text('mp_payment_id'),
+  mpPreferenceId: text('mp_preference_id'),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
   updatedAt: integer('updated_at', { mode: 'timestamp' }),
   paidAt: integer('paid_at', { mode: 'timestamp' }),
   lastReminderAt: integer('last_reminder_at', { mode: 'timestamp' }),
+});
+
+// Mercado Pago tokens for users
+export const userTokens = sqliteTable('user_tokens', {
+  userJid: text('user_jid').primaryKey(),
+  mpAccessToken: text('mp_access_token').notNull(),
+  mpRefreshToken: text('mp_refresh_token'),
+  mpUserId: text('mp_user_id'),
+  mpPublicKey: text('mp_public_key'),
+  expiresAt: integer('expires_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }),
+});
+
+// OAuth state for login flow
+export const oauthStates = sqliteTable('oauth_states', {
+  state: text('state').primaryKey(),
+  userJid: text('user_jid').notNull(),
+  groupJid: text('group_jid').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 });
 
 // Relations for type-safe joins
@@ -69,3 +91,7 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Debt = typeof debts.$inferSelect;
 export type NewDebt = typeof debts.$inferInsert;
+export type UserToken = typeof userTokens.$inferSelect;
+export type NewUserToken = typeof userTokens.$inferInsert;
+export type OAuthState = typeof oauthStates.$inferSelect;
+export type NewOAuthState = typeof oauthStates.$inferInsert;

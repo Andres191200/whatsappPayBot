@@ -13,6 +13,8 @@ export interface DebtWithRelations {
   currency: string | null;
   description: string | null;
   status: 'pending' | 'paid' | 'cancelled' | null;
+  mpPaymentId: string | null;
+  mpPreferenceId: string | null;
   createdAt: Date | null;
   group: {
     id: number;

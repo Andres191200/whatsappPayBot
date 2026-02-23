@@ -15,4 +15,13 @@ export const config = {
   rateLimit: {
     messageDelay: parseInt(process.env.MESSAGE_DELAY || '1000', 10),
   },
+  server: {
+    port: parseInt(process.env.SERVER_PORT || '3000', 10),
+    baseUrl: process.env.SERVER_BASE_URL || 'http://localhost:3000',
+  },
+  mercadoPago: {
+    clientId: process.env.MP_CLIENT_ID || '',
+    clientSecret: process.env.MP_CLIENT_SECRET || '',
+    redirectUri: process.env.MP_REDIRECT_URI || 'http://localhost:3000/oauth/callback',
+  },
 } as const;
