@@ -33,12 +33,12 @@ export async function handlePayme(
     return;
   }
 
-  // Create debts in database
+  // Create debts in database (store full JIDs for proper mention support)
   try {
     const debtIds = await createDebts({
       groupJid,
-      creditorPhone: senderPhone,
-      debtorPhones: parsed.debtors,
+      creditorJid: senderJid,
+      debtorJids: mentions,
       amount: parsed.amount,
       description: parsed.description,
     });

@@ -4,8 +4,8 @@ import type { DebtWithRelations } from '../types/index.js';
 
 export interface CreateDebtsParams {
   groupJid: string;
-  creditorPhone: string;
-  debtorPhones: string[];
+  creditorJid: string;
+  debtorJids: string[];
   amount: number;
   description?: string;
 }
@@ -37,23 +37,24 @@ async function ensureUsers(phones: string[]): Promise<void> {
 
 /**
  * Create debt records for multiple debtors
+ * Now stores full JIDs (with @lid or @s.whatsapp.net) for proper mention support
  */
 export async function createDebts(params: CreateDebtsParams): Promise<number[]> {
-  const { groupJid, creditorPhone, debtorPhones, amount, description } = params;
+  const { groupJid, creditorJid, debtorJids, amount, description } = params;
 
-  // Ensure group and users exist
+  // Ensure group and users exist (store full JIDs)
   const groupId = await ensureGroup(groupJid);
-  await ensureUsers([creditorPhone, ...debtorPhones]);
+  await ensureUsers([creditorJid, ...debtorJids]);
 
   // Create debt records
   const insertedIds: number[] = [];
-  for (const debtorPhone of debtorPhones) {
+  for (const debtorJid of debtorJids) {
     const [debt] = await db
       .insert(debts)
       .values({
         groupId,
-        creditorPhone,
-        debtorPhone,
+        creditorPhone: creditorJid,
+        debtorPhone: debtorJid,
         amount,
         description,
       })

@@ -47,9 +47,13 @@ export async function sendReminders(
 
       if (!message) continue;
 
-      // Collect all debtor phone numbers for mentions
-      const debtorPhones = new Set(groupDebts.map((d) => d.debtorPhone));
-      const mentions = Array.from(debtorPhones).map((p) => `${p}@s.whatsapp.net`);
+      // Collect all JIDs for mentions (both debtors and creditors)
+      const allJids = new Set<string>();
+      for (const d of groupDebts) {
+        allJids.add(d.debtorPhone);
+        allJids.add(d.creditorPhone);
+      }
+      const mentions = Array.from(allJids);
 
       try {
         await sock.sendMessage(groupJid, {

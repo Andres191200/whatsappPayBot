@@ -9,14 +9,16 @@ const logger = pino({ name: 'scheduler' });
 export function startScheduler(sock: WASocket): void {
   const { reminderHour, reminderMinute, weeklySummaryDay } = config.scheduler;
 
-  // Daily reminder at configured time
+  // TEST MODE: Run every minute (change back to dailyCron for production)
+  const testCron = '* * * * *'; // Every minute
   const dailyCron = `${reminderMinute} ${reminderHour} * * *`;
-  cron.schedule(dailyCron, async () => {
-    logger.info('Running daily reminder job');
+
+  cron.schedule(testCron, async () => {
+    logger.info('Running reminder job (TEST MODE - every minute)');
     await sendReminders(sock);
   });
 
-  logger.info({ cron: dailyCron }, 'Daily reminder scheduled');
+  logger.info({ cron: testCron }, 'Reminder scheduled (TEST MODE)');
 
   // Weekly summary on configured day at 9:00 AM
   const weeklyCron = `0 9 * * ${weeklySummaryDay}`;
