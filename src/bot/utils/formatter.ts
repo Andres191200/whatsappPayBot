@@ -45,13 +45,13 @@ export function formatDebtCreated(
   const debtorMentions = debtorPhones.map(formatMention).join(', ');
   const creditorMention = formatMention(creditorPhone);
 
-  let message = `${debtorMentions} - don't forget to transfer ${formatAmount(amount)} to ${creditorMention}`;
+  let message = `${debtorMentions} - Dale pibe transferile  ${formatAmount(amount)} a ${creditorMention}`;
 
   if (description) {
     message += ` (${description})`;
   }
 
-  message += '\n\nUse /paid ' + creditorMention + ' when you\'ve transferred the money.';
+  message += '\n\nPoné /paid ' + creditorMention + ' cuando le hayas transferido.';
 
   return message;
 }
