@@ -45,13 +45,13 @@ export function formatDebtCreated(
   const debtorMentions = debtorPhones.map(formatMention).join(', ');
   const creditorMention = formatMention(creditorPhone);
 
-  let message = `${debtorMentions} - don't forget to transfer ${formatAmount(amount)} to ${creditorMention}`;
+  let message = `${debtorMentions} - Dale pibe transferile  ${formatAmount(amount)} a ${creditorMention}`;
 
   if (description) {
     message += ` (${description})`;
   }
 
-  message += '\n\nUse /paid ' + creditorMention + ' when you\'ve transferred the money.';
+  message += '\n\nEscribí /paid ' + creditorMention + ' cuando le hayas transferido.';
 
   return message;
 }
@@ -107,8 +107,8 @@ export function formatReminder(debts: DebtWithRelations[], isWeeklySummary = fal
   }
 
   const header = isWeeklySummary
-    ? '*Weekly debt summary*\n\n'
-    : '*Reminder: Pending payments*\n\n';
+    ? '*Resumen de pagos semanal de Nordelta*\n\n'
+    : '*Recordatorio: Pagos pendientes de Nordelta*\n\n';
 
   // Group debts by debtor for cleaner reminders
   const byDebtor = new Map<string, { creditor: string; amount: number; description?: string | null }[]>();
@@ -126,7 +126,7 @@ export function formatReminder(debts: DebtWithRelations[], isWeeklySummary = fal
 
   for (const [debtorPhone, debtorDebts] of byDebtor) {
     const total = debtorDebts.reduce((sum, d) => sum + d.amount, 0);
-    message += `${formatMention(debtorPhone)} owes ${formatAmount(total)} total:\n`;
+    message += `${formatMention(debtorPhone)} le debe ${formatAmount(total)} en total:\n`;
 
     for (const debt of debtorDebts) {
       message += `  - ${formatAmount(debt.amount)} to ${formatMention(debt.creditor)}`;
@@ -137,7 +137,7 @@ export function formatReminder(debts: DebtWithRelations[], isWeeklySummary = fal
     }
   }
 
-  message += '\nUse /paid @creditor when you\'ve paid!';
+  message += '\nEscribí /paid @nombre_de_persona cuando le hayas transferido.';
 
   return message;
 }
